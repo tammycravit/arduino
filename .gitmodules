@@ -76,3 +76,6 @@
 [submodule "Libraries/FrequencyTimer2"]
 	path = Libraries/FrequencyTimer2
 	url = git@github.com:sensorium/FrequencyTimer2.git
+[submodule "Libraries/MIDI"]
+	path = Libraries/MIDI
+	url = git@github.com:FortySevenEffects/arduino_midi_library.git
