@@ -1,0 +1,47 @@
+##############################################################################
+# Arduino Makefile Template
+#
+# To start a new Arduino project:
+#
+# 1. Create a subdirectory under /home/tammy/projects/arduino. It should be
+#    named for the project name,
+# 2. Copy this Makefile to <projname>/Makefile. Adjust ARDUINO_LIBS and
+#    BOARD_TAG as necessary.
+# 3. Create a file named <projname>.ino in the <projname> directory to hold
+#    your sketch.
+##############################################################################
+
+#=============================================================================
+# Toolkit locations
+#=============================================================================
+
+ARDUINO_DIR   = /usr/share/arduino
+ARDMK_TOOLS   = /usr/share/arduino
+AVR_TOOLS_DIR = /usr
+
+USER_LIB_PATH := $(realpath ../Libraries)
+
+#=============================================================================
+# Extra Arduino libraries to include. These libraries should be installed in
+# /usr/share/arduino/libraries, or in the Libraries folder in the repo.
+#=============================================================================
+
+ARDUINO_LIBS   =
+
+#=============================================================================
+# Target board - use "make show_boards" to list valid options.
+#=============================================================================
+
+BOARD_TAG      = nano328
+
+#=============================================================================
+# Serial monitor port
+#=============================================================================
+
+MONITOR_PORT   = /dev/ttyUSB0
+
+#=============================================================================
+# And include the Arduino makefile. This is where all the magic happens.
+#=============================================================================
+
+include /usr/share/arduino/Arduino.mk
