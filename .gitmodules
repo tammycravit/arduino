@@ -79,3 +79,6 @@
 [submodule "Libraries/MIDI"]
 	path = Libraries/MIDI
 	url = git@github.com:FortySevenEffects/arduino_midi_library.git
+[submodule "Libraries/jeelib"]
+	path = Libraries/jeelib
+	url = git@github.com:jeelabs/jeelib.git
