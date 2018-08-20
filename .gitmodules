@@ -82,3 +82,9 @@
 [submodule "Libraries/jeelib"]
 	path = Libraries/jeelib
 	url = git@github.com:jeelabs/jeelib.git
+[submodule "Libraries/Adafruit-SSD1331-OLED-Driver-Library-for-Arduino"]
+	path = Libraries/Adafruit-SSD1331-OLED-Driver-Library-for-Arduino
+	url = git@github.com:adafruit/Adafruit-SSD1331-OLED-Driver-Library-for-Arduino.git
+[submodule "Libraries/ucglib"]
+	path = Libraries/ucglib
+	url = https://github.com/olikraus/ucglib
