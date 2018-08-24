@@ -88,3 +88,15 @@
 [submodule "Libraries/ucglib"]
 	path = Libraries/ucglib
 	url = https://github.com/olikraus/ucglib
+[submodule "Libraries/TinyWireM"]
+	path = Libraries/TinyWireM
+	url = git@github.com:adafruit/TinyWireM.git
+[submodule "Libraries/TinyLiquidCrystal"]
+	path = Libraries/TinyLiquidCrystal
+	url = git@github.com:adafruit/TinyLiquidCrystal.git
+[submodule "Libraries/TinyDHT"]
+	path = Libraries/TinyDHT
+	url = git@github.com:adafruit/TinyDHT.git
+[submodule "Libraries/TinyRTCLib"]
+	path = Libraries/TinyRTCLib
+	url = git@github.com:adafruit/TinyRTCLib.git
