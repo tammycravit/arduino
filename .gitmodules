@@ -112,3 +112,6 @@
 [submodule "Libraries/Adafruit_MiniMLX90614"]
 	path = Libraries/Adafruit_MiniMLX90614
 	url = git@github.com:Adafruit/Adafruit_MiniMLX90614.git
+[submodule "opensource/ATtiny-Punk-Console"]
+	path = opensource/ATtiny-Punk-Console
+	url = https://github.com/noisio/ATtiny-Punk-Console

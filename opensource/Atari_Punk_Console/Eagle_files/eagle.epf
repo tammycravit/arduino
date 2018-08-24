@@ -1,0 +1,23 @@
+[Eagle]
+Version="06 04 00"
+Platform="Linux"
+Serial="62191E841E-LSR-WLM-1EL"
+Globals="Globals"
+Desktop="Desktop"
+
+[Globals]
+AutoSaveProject=1
+UsedLibrary="/home/leo/.eagle/lbr/resistor.lbr"
+UsedLibrary="/home/leo/eagle/libs/SparkFun.lbr"
+UsedLibrary="/home/leo/eagle/libs/adafruit.lbr"
+UsedLibrary="/home/leo/eagle/libs/avr-7.lbr"
+
+[Win_1]
+Type="Control Panel"
+Loc="64 90 1212 919"
+State=2
+Number=0
+
+[Desktop]
+Screen="1280 1024"
+Window="Win_1"
