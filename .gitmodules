@@ -100,3 +100,15 @@
 [submodule "Libraries/TinyRTCLib"]
 	path = Libraries/TinyRTCLib
 	url = git@github.com:adafruit/TinyRTCLib.git
+[submodule "Libraries/Adafruit_TinyFlash"]
+	path = Libraries/Adafruit_TinyFlash
+	url = git@github.com:Adafruit/Adafruit_TinyFlash.git
+[submodule "Libraries/Adafruit_SoftServo"]
+	path = Libraries/Adafruit_SoftServo
+	url = git@github.com:Adafruit/Adafruit_SoftServo.git
+[submodule "Libraries/Adafruit_TinyCAP1188"]
+	path = Libraries/Adafruit_TinyCAP1188
+	url = git@github.com:Adafruit/Adafruit_TinyCAP1188.git
+[submodule "Libraries/Adafruit_MiniMLX90614"]
+	path = Libraries/Adafruit_MiniMLX90614
+	url = git@github.com:Adafruit/Adafruit_MiniMLX90614.git
