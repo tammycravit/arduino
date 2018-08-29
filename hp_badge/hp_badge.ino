@@ -2,7 +2,8 @@
 #include <Adafruit_ST7735.h>
 #include <SD.h>
 #include <SPI.h>
-#include <avr/interrupt.h>
+
+#include "Streaming.h"
 
 #define TFT_CS  10            // Chip select line for TFT display
 #define TFT_RST  9            // Reset line for TFT (or see below...)
@@ -26,8 +27,13 @@
 #define WHITE           RGB(255,255,255)
 #define HUFFLEPUFF_BG   RGB(238,225,119)
 
-// Enable debug output via Serial?
-#define _DEBUG 1
+// Function prototypes
+void changeStateButton_ISR(void);
+void blankScreenButton_ISR(void);
+void updateDisplay(void);
+void bmpDraw(char *filename, uint8_t x, uint16_t y);
+uint16_t read16(File f);
+uint32_t read32(File f);
 
 typedef enum {
   Greeting,
@@ -40,20 +46,13 @@ Adafruit_ST7735  tft                    = Adafruit_ST7735(TFT_CS,  TFT_DC, TFT_R
 MapState         currentState           = BlankScreen;
 MapState         previousState          = BlankScreen;
 bool             blankScreen            = false;
-char             sprintfBuffer[100];
 
 uint8_t          changeStateButtonState = 0;
 uint8_t          blankScreenButtonState = 0;
 boolean          displayStateChanged    = false;
 
-void _dbg(char *msg) {
-#ifdef _DEBUG
-  Serial.println(msg);
-#endif
-}
-
 void changeStateButton_ISR(void) {
-  uint8_t currState = digitalRead(changeButtonPin);
+  uint8_t currState = digitalRead(changeStatePin);
   if ((currState == HIGH) && (changeStateButtonState == LOW)) {
     previousState = currentState;
     switch (currentState)
@@ -99,12 +98,9 @@ void updateDisplay(void) {
   if (false == displayStateChanged)
     return;
 
-  _dbg("updateDisplay()");
-  memset(sprintfBuffer, 0, sizeof(sprintfBuffer));
-  sprintf(sprintfBuffer, "Display state was %d, now %d", previousState, currentState);
-  _dbg(sprintfBuffer);
+  Serial << F("updateDisplay()") << endl;
+  Serial << F("Display state was ") << previousState << F(", now ") << currentState << endl;
 
-  // TODO: Update the display
   switch (currentState)
   {
       case BlankScreen:
@@ -127,23 +123,20 @@ void updateDisplay(void) {
 
 void setup(void) {
 
-#ifdef _DEBUG
   Serial.begin(9600);
-#endif
   while(!Serial) {
     delay(10);
   }
 
-  _dbg("setup(): initializing");
-  memset(sprintfBuffer, 0, sizeof(sprintfBuffer));
+  Serial << F("setup(): initializing") << endl;
 
-  pinMode(changeButtonPin, INPUT);
+  pinMode(changeStatePin, INPUT);
   pinMode(blankScreenPin,  INPUT);
 
-  attachInterrupt(changeButtonPin, changeStateButton_ISR, CHANGE);
+  attachInterrupt(changeStatePin, changeStateButton_ISR, CHANGE);
   attachInterrupt(blankScreenPin,  blankScreenButton_ISR, CHANGE);
 
-  _dbg("setup(): display");
+  Serial << F("setup(): init display pins") << endl;
   pinMode(TFT_CS, OUTPUT);
   digitalWrite(TFT_CS, HIGH);
   pinMode(SD_CS, OUTPUT);
@@ -153,9 +146,9 @@ void setup(void) {
   tft.initR(INITR_BLACKTAB);
   tft.fillScreen(HUFFLEPUFF_BG);
 
-  _dbg("setup(): SD card...");
+  Serial << F("setup(): init SD card") << endl;
   if (!SD.begin(SD_CS)) {
-    _dbg("setup(): SD card init failed!");
+    Serial << F("setup(): init SD card FAILED") << endl;
     return;
   }
   delay(200);
@@ -165,7 +158,7 @@ void setup(void) {
 }
 
 void loop(void) {
-  _dbg("loop()");
+  Serial << F("loop()") << endl;
   updateDisplay();
   delay(250);
 }
@@ -193,40 +186,35 @@ void bmpDraw(char *filename, uint8_t x, uint16_t y) {
   boolean  flip    = true;        // BMP is stored bottom-to-top
   int      w, h, row, col;
   uint8_t  r, g, b;
-  uint32_t pos = 0, startTime = millis();
+  uint32_t pos = 0;
 
   if((x >= tft.width()) || (y >= tft.height())) return;
 
-  memset(printfBuffer, 0, sizeof(printfBuffer));
-  sprintf(printfBuffer, "bmpDraw(): loading %s", filename);
-  _dbg(printfBuffer);
+  Serial << F("bmpDraw(): Loading ") << filename << endl;
 
   // Open requested file on SD card
   if ((bmpFile = SD.open(filename)) == NULL) {
-    _dbg("bmpDraw(): File not found");
+    Serial << F("bmpDraw(): File not found") << endl;
     return;
   }
 
   // Parse BMP header
   if(read16(bmpFile) == 0x4D42) { // BMP signature
-    // // Serial.print(F("File size: ")); Serial.println(read32(bmpFile));
+    Serial << F("File size: ") << read32(bmpFile) << endl;
     (void)read32(bmpFile); // Read & ignore creator bytes
     bmpImageoffset = read32(bmpFile); // Start of image data
-    // Serial.print(F("Image Offset: ")); Serial.println(bmpImageoffset, DEC);
-    // Read DIB header
-    // Serial.print(F("Header size: ")); Serial.println(read32(bmpFile));
+    Serial << F("Image offset: ") << bmpImageoffset << endl;
+    Serial << F("Header size: ") << read32(bmpFile) << endl;
+
     bmpWidth  = read32(bmpFile);
     bmpHeight = read32(bmpFile);
     if(read16(bmpFile) == 1) { // # planes -- must be '1'
       bmpDepth = read16(bmpFile); // bits per pixel
-      // Serial.print(F("Bit Depth: ")); Serial.println(bmpDepth);
+      Serial << F("Bit depth: ") << bmpDepth << endl;
       if((bmpDepth == 24) && (read32(bmpFile) == 0)) { // 0 = uncompressed
 
         goodBmp = true; // Supported BMP format -- proceed!
-        // Serial.print(F("Image size: "));
-        // Serial.print(bmpWidth);
-        // Serial.print('x');
-        // Serial.println(bmpHeight);
+        Serial << F("Image size: ") << bmpWidth << 'x' << bmpHeight << endl;
 
         // BMP rows are padded (if needed) to 4-byte boundary
         rowSize = (bmpWidth * 3 + 3) & ~3;
@@ -248,7 +236,6 @@ void bmpDraw(char *filename, uint8_t x, uint16_t y) {
         tft.setAddrWindow(x, y, x+w-1, y+h-1);
 
         for (row=0; row<h; row++) { // For each scanline...
-
           // Seek to start of scan line.  It might seem labor-
           // intensive to be doing this on every line, but this
           // method covers a lot of gritty details like cropping
@@ -278,19 +265,16 @@ void bmpDraw(char *filename, uint8_t x, uint16_t y) {
             tft.pushColor(tft.color565(r,g,b));
           } // end pixel
         } // end scanline
-        // Serial.print(F("Loaded in "));
-        // Serial.print(millis() - startTime);
-        // Serial.println(" ms");
+        Serial << F("Bitmap loaded successfully ") << endl;
       } // end goodBmp
     }
   }
 
   bmpFile.close();
-  if(!goodBmp) { 
-    // Serial.println(F("BMP format not recognized."));
+  if(!goodBmp) {
+    Serial << F("BMP format not recognized") << endl;
   }
 }
-
 
 // These read 16- and 32-bit types from the SD card file.
 // BMP data is stored little-endian, Arduino is little-endian too.
